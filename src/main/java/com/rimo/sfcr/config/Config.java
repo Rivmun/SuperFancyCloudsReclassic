@@ -1,0 +1,143 @@
+package com.rimo.sfcr.config;
+
+import com.google.gson.JsonParseException;
+import com.rimo.sfcr.Common;
+
+import java.awt.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import static com.rimo.sfcr.Common.*;
+
+public class Config extends SharedConfig {
+	private boolean enableDebug = false;
+	private boolean enableServer = true;
+	private boolean enableViewCulling = true;
+	private float cullRadianMultiplier = 1.1f;
+	private int rebuildInterval = 10;
+	private boolean enableSmoothChange = false;
+
+	/**
+	 * Do you want to call .load() to read a local config?
+	 */
+	public Config() {}
+	public void setConfig(Config config) {
+		this.enableDebug                = config.enableDebug;
+		this.enableServer               = config.enableServer;
+		this.enableViewCulling          = config.enableViewCulling;
+		this.cullRadianMultiplier       = config.cullRadianMultiplier;
+		this.rebuildInterval            = config.rebuildInterval;
+		this.enableSmoothChange         = config.enableSmoothChange;
+		setSharedConfig(config);
+	}
+
+	public boolean isEnableDebug() {return enableDebug;}
+	public boolean isEnableServer() {return enableServer;}
+	public boolean getEnableViewCulling() {return enableViewCulling;}
+	public float getCullRadianMultiplier() {return cullRadianMultiplier;}
+	public int getRebuildInterval() {return rebuildInterval;}
+	public boolean isEnableSmoothChange() {return enableSmoothChange;}
+
+	public void setEnableDebug(boolean isEnable) {enableDebug = isEnable;}
+	public void setEnableServer(boolean isEnable) {
+		enableServer = isEnable;}
+	public void setEnableViewCulling(boolean enableViewCulling) {this.enableViewCulling = enableViewCulling;}
+	public void setCullRadianMultiplier(float value) {cullRadianMultiplier = value;}
+	public void setRebuildInterval(int value) {rebuildInterval = value;}
+	public void setEnableSmoothChange(boolean isEnable) {enableSmoothChange = isEnable;}
+
+	/*
+	 * -----IO-----
+	 */
+
+	public static final String OVERWORLD = "overworld";
+
+	private static Path getDefaultPath() {
+		return configPath == null ? null : configPath.resolve(Common.MOD_ID + ".json");
+	}
+
+	public Config load() {
+		load(OVERWORLD);
+		return this;
+	}
+
+	/**
+	 * Load dimensionName specific config then setConfig to this instance.<br>
+	 * If specific config not exist, it'll load default config then setConfig.<br>
+	 * File path like sfcr_modName_dimensionName.json
+	 * @param dimensionNamespace syntax like "minecraft:overworld" from RegistryKey.getRegistry().getValue().toString()
+	 * @return true if success to load dimension specific config, false if not.
+	 */
+	public boolean load(String dimensionNamespace) {
+		Path path = getDefaultPath();
+		if (!Files.exists(path))
+			save();  //write default file if not exist.
+		if (! dimensionNamespace.equals(OVERWORLD)) {
+			dimensionNamespace = "_" + dimensionNamespace.replace(":", "_");
+			Path path2 = configPath.resolve(MOD_ID + dimensionNamespace + ".json");
+			if (Files.exists(path2)) {
+				path = path2;  //load dimension config if exists, or load default (path unmodified if not exist)
+			} else {
+				return false;
+			}
+		}
+		try (BufferedReader reader = Files.newBufferedReader(path)) {
+			setConfig(GSON.fromJson(reader, Config.class));
+		} catch (IOException | JsonParseException e) {
+			LOGGER.error("{} failed to read config file: {}", MOD_ID, path.getFileName());
+			return false;
+		}
+		LOGGER.info("{} load config file: {}", MOD_ID, path.getFileName());
+		return true;
+	}
+
+	public void save() {
+		save(OVERWORLD);
+	}
+
+	/**
+	 * Save config file to .minecraft/config/sfcr_modName_dimensionName.json
+	 * @param dimensionNamespace syntax like "minecraft:overworld" from RegistryKey.getRegistry().getValue().toString()
+	 */
+	public void save(String dimensionNamespace) {
+		Path path = getDefaultPath();
+		if (! dimensionNamespace.equals(OVERWORLD)) {
+			dimensionNamespace = "_" + dimensionNamespace.replace(":", "_");
+			path = path.getParent().resolve(MOD_ID + dimensionNamespace + ".json");
+		}
+		try {
+			Files.createDirectories(path.getParent());
+			try (BufferedWriter writer = Files.newBufferedWriter(path)) {
+				GSON.toJson(this, writer);
+			}
+		} catch (IOException e) {
+			LOGGER.error("{} failed to write config file: {}", MOD_ID, path.getFileName());
+		}
+	}
+
+	public static void open() {
+		open(OVERWORLD);
+	}
+
+	public static void open(String dimensionNamespace) {
+		File file;
+		if (dimensionNamespace.equals(OVERWORLD)) {
+			file = new File(configPath.toFile(), MOD_ID + ".json");
+		}  else {
+			file = new File(configPath.toFile(), MOD_ID + dimensionNamespace + ".json");
+		}
+		if (! file.exists()) {
+			CONFIG.save(dimensionNamespace);
+		}
+		try {
+			Desktop.getDesktop().open(file);
+		} catch (IOException e) {
+			LOGGER.error("{} failed to open config file: {}", MOD_ID, file.getAbsolutePath());
+		}
+	}
+
+}

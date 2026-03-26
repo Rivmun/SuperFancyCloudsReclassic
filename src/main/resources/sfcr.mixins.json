@@ -1,0 +1,11 @@
+{
+    "compatibilityLevel": "JAVA_8",
+    "package": "com.rimo.sfcr.mixin",
+    "refmap": "sfcr.refmap.json",
+    "mixins": [
+    ],
+    "client": [
+        "RenderGlobalMixin"
+    ],
+    "server": []
+}

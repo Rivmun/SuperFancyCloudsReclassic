@@ -1,0 +1,6 @@
+{
+  "text.sfcr.openConfigFile": "Open in editor",
+  "text.sfcr.configScreen.info": "",
+  "text.sfcr.option.customDimensionMode.@PrefixText": "§4WARNING:§r You're in Custom Dimension, any changes apply to specific config file of dimension %s.\nTo edit default config, please back to §ominecraft:overworld§r or remove this specific config of that dimension.",
+  "text.sfcr.option.configHasBeenOverride.@PrefixText": "§4WARNING:§r You're exploring config that override by server sync.\nif you accept to save when exit this page, local config will be lost\nTo refuse server sync or use your local config, please disable \"Sync with Server\" option after you disconnect."
+}

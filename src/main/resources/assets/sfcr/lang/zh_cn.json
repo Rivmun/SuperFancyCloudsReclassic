@@ -1,0 +1,6 @@
+{
+  "text.sfcr.openConfigFile": "在编辑器中打开",
+  "text.sfcr.configScreen.info": "",
+  "text.sfcr.option.customDimensionMode.@PrefixText": "§4警告：§r你正位于自定义维度 %s，任何更改都将保存在该维度的独立配置文件中。\n若想更改默认配置，你需要返回主世界§ooverworld§r或移除该维度的独立配置文件。",
+  "text.sfcr.option.configHasBeenOverride.@PrefixText": "§4警告：§r你正在浏览被服务器覆盖的设置，若在退出该页面时选择保存，你的原始设置将丢失。\n若不想被服务器覆盖、或使用本地的设置，请在断开连接后关闭“启用服务”选项。"
+}
